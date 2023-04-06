@@ -5,20 +5,36 @@ from pprint import pprint
 import requests
 import os
 from dotenv import load_dotenv
+import logging
+
 
 load_dotenv()
-TELEGRAM_TOKEN = os.getenv('TOKEN')  # Добавьте токен в код (не делайте так в реальных проектах!)
 
+
+TELEGRAM_TOKEN = os.getenv('TOKEN')
+
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    filename='main.log',
+    filemode='w',
+    level=logging.INFO)
 
 # bot = telegram.Bot(token=TELEGRAM_TOKEN)
 
-updater = Updater(token=TELEGRAM_TOKEN, use_context=True)
 
 
-URL = 'https://api.thecatapi.com/v1/images/search'
+
+# URL = 'https://api.thecatapi.com/v1/images/search'
+URL = ''
 
 def get_new_image():
-    response = requests.get(URL).json()
+    try:
+        response = requests.get(URL).json()
+    except Exception as error:
+        logging.error(f'Ошибка при запросе к основному API: {error}')
+        new_url = 'https://api.thedogapi.com/v1/images/search'
+        response = requests.get(new_url).json()
+    # response = response.json()
     random_cat = response[0].get('url')
     return random_cat
 
@@ -54,9 +70,13 @@ def wake_up(update, context):
 # Регистрируется обработчик CommandHandler;
 # он будет отфильтровывать только сообщения с содержимым '/start'
 # и передавать их в функцию wake_up()
-updater.dispatcher.add_handler(CommandHandler('start', wake_up))
-updater.dispatcher.add_handler(CommandHandler('newcat', new_cat))
+def main():
+    updater = Updater(token=TELEGRAM_TOKEN, use_context=True) 
+    updater.dispatcher.add_handler(CommandHandler('start', wake_up))
+    updater.dispatcher.add_handler(CommandHandler('newcat', new_cat))
 
-updater.start_polling()
-updater.idle() 
+    updater.start_polling()
+    updater.idle() 
 
+if __name__ == '__main__':
+    main() 
