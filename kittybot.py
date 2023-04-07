@@ -24,8 +24,8 @@ logging.basicConfig(
 
 
 
-# URL = 'https://api.thecatapi.com/v1/images/search'
-URL = ''
+URL = 'https://api.thecatapi.com/v1/images/search'
+# URL = ''
 
 def get_new_image():
     try:
